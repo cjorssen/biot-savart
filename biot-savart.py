@@ -48,6 +48,9 @@ def biot_savart(xP, yP, zP, XM, YM, ZM):
     PMcubed = (XPM**2 + YPM**2 + ZPM**2)**(3/2.)
     # PMcubed.shape = (NX, NY, NP)
 
+    # Éviter la division par zéro (trop proche des sources)
+    PMcubed[PMcubed < 1e-6] = np.nan
+
     Xdl_cross_PM = - YPM * vec_dlP[2,:] + ZPM * vec_dlP[1,:]
     Ydl_cross_PM = - ZPM * vec_dlP[0,:] + XPM * vec_dlP[2,:]
     Zdl_cross_PM = - XPM * vec_dlP[1,:] + YPM * vec_dlP[0,:]
