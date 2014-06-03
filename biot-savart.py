@@ -83,8 +83,8 @@ R = 1
 xP, yP, zP = circular_loop(R, [0., 0., 0.])
 
 # Grille de NX*NY points
-NX = 20
-NY = 20
+NX = 30
+NY = 30
 
 # Coordonnées min et max des points de la grille
 xmax = 2 * R
@@ -107,12 +107,19 @@ ZM = np.zeros((yM.size, xM.size))
 # La norme de B (BNorme) permet de normer le champ
 BX, BY, BNorme = biot_savart(xP, yP, zP, XM, YM, ZM)
 
+for z in [.5, -.5, 1., -1.]:
+    xP, yP, zP = circular_loop(R, [0., 0., z])
+    BX2, BY2, BNorme2 = biot_savart(xP, yP, zP, XM, YM, ZM)
+
+    BX += BX2
+    BY += BY2
+    BNorme += BNorme2
 # Si on norme le champ, les flèches ont toutes la même taille (c'est plus
 # joli, mais on perd de l'information).
 plt.quiver(XM, YM, BX/BNorme, BY/BNorme, pivot = 'middle', units = 'width')
 # Du coup, on peut retrouver cette information avec une "troisième" dimension
 plt.imshow(BNorme, interpolation = 'bilinear', origin = 'lower',
                    cmap = cm.jet, extent = (xmin, xmax, ymin, ymax))
-# Pour le fun
-plt.contour(XM, YM, BNorme, 10)
+# Pour le fun (ou pas)
+# plt.contour(XM, YM, BNorme, 10)
 plt.show()
