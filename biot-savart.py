@@ -65,27 +65,54 @@ def biot_savart(xP, yP, zP, XM, YM, ZM):
     BY = np.sum(Ydl_cross_PM_over_PMcubed, axis = 2)
     BZ = np.sum(Zdl_cross_PM_over_PMcubed, axis = 2)
     # BX.shape = BY.shape = BZ.shape = (NX, NY)
+    
+    BNorme = (BX**2 + BY**2 + BZ**2)**(.5)
+    # BNorme.shape = (NX, NY)
 
-    return mu0 * I * BX/(4 * np.pi), mu0 * I * BY/(4 * np.pi)
+    return mu0 * I * BX/(4 * np.pi), mu0 * I * BY/(4 * np.pi),\
+           mu0 * I * BNorme/(4 * np.pi)
 
 def Bzloop(z):
     return mu0 * I * R**2/(2 * (R**2 + z**2)**(3/2.))
 
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 
-N = 25
 R = 1
 
 xP, yP, zP = circular_loop(R, [0., 0., 0.])
 
-xM = np.linspace(-2,2,N)
-yM = np.linspace(-2,2,N)
+# Grille de NX*NY points
+NX = 20
+NY = 20
 
+# Coordonnées min et max des points de la grille
+xmax = 2 * R
+xmin = -xmax
+ymax = 2 * R
+ymin = -ymax
+
+# Les coordonnées des points de la grille sont répartis uniformément
+# sur [xmin, xmax]x[ymin, ymax]
+xM = np.linspace(xmin, xmax, NX)
+yM = np.linspace(ymin, ymax, NY)
+
+# Création de la grille
 XM, YM = np.meshgrid(xM, yM)
 
+# On impose la cote de la grille : z = 0
 ZM = np.zeros((yM.size, xM.size))
 
-BX, BY = biot_savart(xP, yP, zP, XM, YM, ZM)
+# Calcul du champ magnétique
+# La norme de B (BNorme) permet de normer le champ
+BX, BY, BNorme = biot_savart(xP, yP, zP, XM, YM, ZM)
 
-plt.quiver(XM, YM, BX, BY, pivot = 'middle', units = 'width')
+# Si on norme le champ, les flèches ont toutes la même taille (c'est plus
+# joli, mais on perd de l'information).
+plt.quiver(XM, YM, BX/BNorme, BY/BNorme, pivot = 'middle', units = 'width')
+# Du coup, on peut retrouver cette information avec une "troisième" dimension
+plt.imshow(BNorme, interpolation = 'bilinear', origin = 'lower',
+                   cmap = cm.jet, extent = (xmin, xmax, ymin, ymax))
+# Pour le fun
+plt.contour(XM, YM, BNorme, 10)
 plt.show()
