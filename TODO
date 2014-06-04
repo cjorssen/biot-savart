@@ -1,0 +1,9 @@
+* Ajouter les distributions de courant classiques :
+  - spire rectangulaire
+  - bobine
+  - fil
+  - ...
+
+* Faire des distributions des objets
+
+* Tracer les lignes de champ (voir np.streamline)
